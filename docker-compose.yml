@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  snippetbox:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/home/go/app
+    ports:
+      - 4000:4000
+    command: sh -c "tail -f /dev/null"
+  
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: snippetbox
+    volumes:
+      - ./data:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
