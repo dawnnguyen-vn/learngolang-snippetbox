@@ -21,7 +21,7 @@ type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	snippets       *models.SnippetModel
-	users          *models.User
+	users          *models.UserModal
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -58,7 +58,7 @@ func main() {
 		errorLog:       errLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{DB: db},
-		users: $moe&models.User{Db: db},
+		users:          &models.UserModal{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
