@@ -46,6 +46,11 @@ VALUES(?, ?, ?, UTC_TIMESTAMP())`
 }
 
 func (m *UserModal) Authenticate(email, password string) (int, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return 0, err
+	}
+	// TODO: continue to implement login logic
 	return 0, nil
 }
 

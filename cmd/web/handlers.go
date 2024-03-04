@@ -73,6 +73,12 @@ type userSignupForm struct {
 	validator.Validator `form:"-"`
 }
 
+type userLoginForm struct {
+	Email               string `form:"name"`
+	Password            string `form:"name"`
+	validator.Validator `from:"-"`
+}
+
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	var form snippetCreateForm
 
@@ -109,6 +115,12 @@ func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userSignupForm{}
 	app.render(w, http.StatusOK, "signup.tmpl.html", data)
+}
+
+func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = userLoginForm{}
+	app.render(w, http.StatusOK, "login.tmpl.html", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
@@ -153,12 +165,24 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display a login form for logging in a user...")
-}
-
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Authenticate and login the user...")
+	form := userLoginForm{}
+
+	error := app.decodePostForm(r, &form)
+	if error != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "Invalid email format")
+
+	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+	form.CheckField(validator.MinChars(form.Password, 8), "password", "The password is at least 8 characters long")
+
+	_, error = app.users.Authenticate(form.Email, form.Password)
+
+	// TODO: after complete Authenticate function, continue to develop Login handler
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
