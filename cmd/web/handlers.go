@@ -74,8 +74,8 @@ type userSignupForm struct {
 }
 
 type userLoginForm struct {
-	Email               string `form:"name"`
-	Password            string `form:"name"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
 	validator.Validator `from:"-"`
 }
 
@@ -168,8 +168,8 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	form := userLoginForm{}
 
-	error := app.decodePostForm(r, &form)
-	if error != nil {
+	err := app.decodePostForm(r, &form)
+	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -180,9 +180,11 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
 	form.CheckField(validator.MinChars(form.Password, 8), "password", "The password is at least 8 characters long")
 
-	_, error = app.users.Authenticate(form.Email, form.Password)
-
-	// TODO: after complete Authenticate function, continue to develop Login handler
+	_, err = app.users.Authenticate(form.Email, form.Password)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("OK la")
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
