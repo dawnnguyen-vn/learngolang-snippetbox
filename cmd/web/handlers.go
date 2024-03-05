@@ -184,7 +184,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("OK la")
+	fmt.Println("OK laa")
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
