@@ -178,15 +178,47 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "Invalid email format")
 
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
-	form.CheckField(validator.MinChars(form.Password, 8), "password", "The password is at least 8 characters long")
 
-	_, err = app.users.Authenticate(form.Email, form.Password)
-	if err != nil {
-		fmt.Println(err)
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+		return
 	}
-	fmt.Println("OK laa")
+
+	id, err := app.users.Authenticate(form.Email, form.Password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.AddNonFieldError("Email or password is incorrect")
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "login.tmpl.html", data)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	err = app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user...")
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), "authenticatedUserId")
+
+	app.sessionManager.Put(r.Context(), "flash", "You've been logout successfully!")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
