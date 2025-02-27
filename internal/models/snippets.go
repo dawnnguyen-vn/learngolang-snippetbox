@@ -52,7 +52,7 @@ func (m *SnippetModel) Get(id int) (*Snippet, error) {
 	return s, nil
 }
 
-func (m *SnippetModel) Latest() (*[]Snippet, error) {
+func (m *SnippetModel) Latest() ([]*Snippet, error) {
 	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10"
 
 	snippets := []*Snippet{}
@@ -66,9 +66,18 @@ func (m *SnippetModel) Latest() (*[]Snippet, error) {
 
 	for rows.Next() {
 		s := &Snippet{}
-		// :TODO immplement
+
+		err := rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		if err != nil {
+			return nil, err
+		}
+
+		snippets = append(snippets, s)
 	}
 
-	return nil, nil
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return snippets, nil
 }
-"Display a specific snippet with ID: ", id
