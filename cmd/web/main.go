@@ -30,6 +30,12 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
+func myMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := "root:example@/snippetbox?parseTime=true"
