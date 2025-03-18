@@ -10,3 +10,7 @@ services:
     volumes:
       - /data:/var/lib/mysql
       - ./data:/docker-entrypoint-initdb.d
+
+volumes:
+  data:
+    external: true
