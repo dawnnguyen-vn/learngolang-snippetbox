@@ -8,9 +8,9 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - /data:/var/lib/mysql
+      - data:/var/lib/mysql
       - ./data:/docker-entrypoint-initdb.d
 
 volumes:
   data:
-    external: true
+    driver: local
