@@ -140,7 +140,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 			form.AddFieldError("email", "Email address is already in use")
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			app.render(w, http.StatusUnprocessableEntity, "signup.html", data)
 		} else {
 			app.serverError(w, err)
 		}
@@ -199,7 +199,6 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
-
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
